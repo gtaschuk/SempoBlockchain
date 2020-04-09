@@ -6,6 +6,8 @@ COPY ./eth_worker/requirements.txt /
 
 RUN pip install -r requirements.txt
 
+RUN pip install coverage==5.0.4
+
 COPY ./eth_worker /
 COPY ./config.py config_files/* /
 
