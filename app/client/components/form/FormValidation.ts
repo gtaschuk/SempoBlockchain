@@ -10,7 +10,7 @@ const FormValidation = {
       let countryCode;
       let orgId;
       try {
-        orgId = store.getState().login.organisationId;
+        orgId = store && store.getState().login.organisationId;
         countryCode =
           orgId && store.getState().organisations.byId[orgId].country_code;
       } catch (e) {
