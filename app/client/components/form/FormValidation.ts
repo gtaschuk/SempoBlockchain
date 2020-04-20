@@ -1,12 +1,25 @@
+import * as Sentry from "@sentry/browser";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
+import store from "../../createStore.js";
 
 const FormValidation = {
   required: (value: string | number) =>
     value !== undefined && value !== "" ? undefined : "This field is required",
   phone: (value: string) => {
     if (value) {
-      //TODO(org): set default country here, currently requires to be full number with +country code
-      const number = parsePhoneNumberFromString(value);
+      let countryCode;
+      let orgId;
+      try {
+        orgId = store.getState().login.organisationId;
+        countryCode =
+          orgId && store.getState().organisations.byId[orgId].country_code;
+      } catch (e) {
+        console.log("Something went wrong", e);
+        countryCode = undefined;
+        Sentry.captureException(e);
+      }
+
+      const number = parsePhoneNumberFromString(value, countryCode);
       if (number && number.isValid()) {
         return undefined;
       } else {

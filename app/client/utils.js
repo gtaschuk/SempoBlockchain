@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/browser";
 import { call, put } from "redux-saga/effects";
 import merge from "deepmerge";
 import { LoginAction } from "./reducers/auth/actions";
@@ -98,6 +99,7 @@ export const generateFormattedURL = (url, query, path) => {
   } catch (e) {
     console.log("Something went wrong", e);
     version = null;
+    Sentry.captureException(e);
   }
 
   if (!version) {
