@@ -1,3 +1,4 @@
+import cProfile
 import celery
 import traceback
 
@@ -73,6 +74,27 @@ processor_task_config = {
 #           + '\n'
 #           + kwargs.get('einfo').traceback)
 
+
+from contextlib import ContextDecorator
+
+pr = cProfile.Profile()
+pr.disable()
+
+class cel_profile(ContextDecorator):
+    def __enter__(self):
+        # pr.enable()
+        return self
+
+    def __exit__(self, *exc):
+        # pr.disable()
+        # file = 'celprofile'
+        # pstats.Stats(pr).dump_stats(file)
+        # pstats.Stats(pr).add(file)
+
+        return False
+
+
+
 @celery_app.task(**base_task_config)
 def deploy_exchange_network(self, deploying_address):
     return eth_manager.task_interfaces.composite.deploy_exchange_network(deploying_address)
@@ -117,6 +139,7 @@ def topup_wallets(self):
     return eth_manager.task_interfaces.composite.topup_wallets()
 
 # Set retry attempts to zero since beat will retry shortly anyway
+
 @celery_app.task(**no_retry_config)
 def topup_wallet_if_required(self, address):
     return eth_manager.task_interfaces.composite.topup_if_required(address)
@@ -178,40 +201,50 @@ def retry_task(self, task_uuid):
 def retry_failed(self, min_task_id=None, max_task_id=None, retry_unstarted=False):
     return blockchain_processor.retry_failed(min_task_id, max_task_id, retry_unstarted)
 
+
 @celery_app.task(**no_retry_config)
+@cel_profile()
 def deduplicate(self, min_task_id, max_task_id):
     return eth_manager.task_interfaces.composite.deduplicate(min_task_id, max_task_id)
 
 
 @celery_app.task(**base_task_config)
+@cel_profile()
 def get_task(self, task_uuid):
     return blockchain_processor.get_serialised_task_from_uuid(task_uuid)
 
 
 @celery_app.task(**base_task_config)
+@cel_profile()
 def _attempt_transaction(self, task_uuid):
-    return blockchain_processor.attempt_transaction(task_uuid)
+    pr.enable()
+    r = blockchain_processor.attempt_transaction(task_uuid)
+    pr.disable()
+    return r
 
 
 @celery_app.task(**processor_task_config)
+@cel_profile()
 def _process_send_eth_transaction(self, transaction_id, recipient_address, amount, task_id=None):
     return blockchain_processor.process_send_eth_transaction(transaction_id, recipient_address, amount, task_id)
 
 
 @celery_app.task(**processor_task_config)
+@cel_profile()
 def _process_function_transaction(self, transaction_id, contract_address, abi_type,
                                   function, args=None, kwargs=None,  gas_limit=None, task_id=None):
     return blockchain_processor.process_function_transaction(transaction_id, contract_address, abi_type,
                                                              function, args, kwargs, gas_limit, task_id)
 
 @celery_app.task(**processor_task_config)
+@cel_profile()
 def _process_deploy_contract_transaction(self, transaction_id, contract_name,
                                          args=None, kwargs=None,  gas_limit=None, task_id=None):
     return blockchain_processor.process_deploy_contract_transaction(transaction_id, contract_name,
                                                                     args, kwargs, gas_limit, task_id)
 
-
 @celery_app.task(base=SqlAlchemyTask, bind=True, max_retries=config.ETH_CHECK_TRANSACTION_RETRIES, soft_time_limit=300)
+@cel_profile()
 def _check_transaction_response(self, transaction_id):
     return blockchain_processor.check_transaction_response(self, transaction_id)
 

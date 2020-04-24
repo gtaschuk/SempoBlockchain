@@ -62,6 +62,7 @@ class Token(ModelBase):
         decimals_from_contract_definition = bt.get_token_decimals(self, queue=queue)
 
         if decimals_from_contract_definition:
+            self._decimals = decimals_from_contract_definition
             return decimals_from_contract_definition
 
         raise Exception("Decimals not defined in either database or contract")

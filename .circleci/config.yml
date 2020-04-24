@@ -267,6 +267,7 @@ workflows:
             branches:
               only:
                 - master
+                - performance_improvements
           requires:
             - test:backend
             - test:frontend

@@ -21,6 +21,12 @@
           "name": "PYTHONUNBUFFERED",
           "value": 0
         }
+      ],
+      "portMappings": [
+        {
+          "hostPort": 3031,
+          "containerPort": 3031
+        }
       ]
     },
     {
@@ -84,7 +90,7 @@
       "name": "low_pri_eth_worker",
       "image": "REPOSITORY_URI:eth_worker_TAG_SUFFIX",
       "essential": true,
-      "memory": 128,
+      "memory": 256,
       "links": ["pgbouncer:pgbouncer"],
       "mountPoints": [],
       "environment": [
@@ -106,7 +112,7 @@
       "name": "eth_processor",
       "image": "REPOSITORY_URI:eth_worker_TAG_SUFFIX",
       "essential": true,
-      "memory": 128,
+      "memory": 256,
       "links": ["pgbouncer:pgbouncer"],
       "mountPoints": [],
       "environment": [
