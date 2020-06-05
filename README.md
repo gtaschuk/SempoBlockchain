@@ -279,6 +279,13 @@ Instead, if you need to merge in two config files, you need to save the old conf
 To run with docker first you must generate local secrets that will be read by the `config.py` script that is copied into the `app`, `worker` and `pgbouncer`
 
 ```
+python generate_secrets.py -n local_docker
 python generate_secrets.py -n docker_test
-docker-compose up
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+```
+
+You may find it useful to add an alias to your `.bashrc` (or `.zshrc` etc) that aliases the docker-compose command
+
+```
+alias sempo='cd /path/to/repo && docker-compose -f ./docker-compose.yml -f ./docker-compose.dev.yml'
 ```
