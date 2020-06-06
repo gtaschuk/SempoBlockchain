@@ -6,11 +6,7 @@ services:
       dockerfile: app/Dockerfile
     image: server
     environment:
-      DEPLOYMENT_NAME: "DOCKER_TEST"
       CONTAINER_TYPE: "APP"
-      CONTAINER_MODE: ${CONTAINER_MODE}
-      AWS_ACCESS_KEY_IDs: ${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
     depends_on:
       - postgres
       - eth_worker
@@ -23,12 +19,8 @@ services:
       dockerfile: eth_worker/Dockerfile
     image: eth_worker
     environment:
-      DEPLOYMENT_NAME: "DOCKER_TEST"
       CONTAINER_TYPE: "PRIMARY"
       PYTHONUNBUFFERED: 0
-      CONTAINER_MODE: ${CONTAINER_MODE}
-      AWS_ACCESS_KEY_IDs: ${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       CI: "false"
     depends_on:
       - redis
@@ -41,12 +33,8 @@ services:
       dockerfile: eth_worker/Dockerfile
     image: eth_worker
     environment:
-      DEPLOYMENT_NAME: "DOCKER_TEST"
       CONTAINER_TYPE: "PROCESSOR"
-      CONTAINER_MODE: ${CONTAINER_MODE}
       PYTHONUNBUFFERED: 0
-      AWS_ACCESS_KEY_IDs: ${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
     depends_on:
       - redis
       - ganache
@@ -57,14 +45,10 @@ services:
       context: .
       dockerfile: pgbouncer/Dockerfile
     image: pgbouncer
-    environment:
-      DEPLOYMENT_NAME: "DOCKER_TEST"
-
   #proxy:
   #build: proxy
   #image: proxy
   #environment:
-  #DEPLOYMENT_NAME: "DOCKER_TEST"
   #ports:
   #- "80:80"
   #depends_on:
@@ -90,7 +74,7 @@ services:
     image: "redis:alpine"
 
   ganache:
-    image: "trufflesuite/ganache-cli:v6.7.0"
+    image: "trufflesuite/ganache-cli:latest"
     command: "-l 80000000 -i 42"
 #  beat:
 #    build:
@@ -98,7 +82,6 @@ services:
 #      dockerfile: worker/Dockerfile
 #    image: worker
 #    environment:
-#      DEPLOYMENT_NAME: "LOCAL_DOCKER"
 #      LOCATION: "LOCAL_DOCKER"
 #      CONTAINER_TYPE: "BEAT"
 #      PYTHONUNBUFFERED: 0
@@ -112,7 +95,6 @@ services:
 #      dockerfile: worker/Dockerfile
 #    image: worker
 #    environment:
-#      DEPLOYMENT_NAME: "LOCAL_DOCKER"
 #      LOCATION: "LOCAL_DOCKER"
 #      CONTAINER_TYPE: "FILTER"
 #      PYTHONUNBUFFERED: 0
@@ -123,7 +105,6 @@ services:
 #  flower:
 #    build: flower
 #    environment:
-#      DEPLOYMENT_NAME: "LOCAL_DOCKER"
 #      LOCATION: "LOCAL_DOCKER"
 #    env_file:
 #      - ~/ebkeys.env
